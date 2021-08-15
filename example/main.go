@@ -26,7 +26,7 @@ func run() (err error) {
 
 	fmt.Println("Input mode:", coninput.DescribeInputMode(originalConsoleMode))
 
-	newConsoleMode := coninput.EnableInputModes(
+	newConsoleMode := coninput.AddInputModes(
 		windows.ENABLE_MOUSE_INPUT,
 		windows.ENABLE_WINDOW_INPUT,
 		windows.ENABLE_PROCESSED_INPUT,

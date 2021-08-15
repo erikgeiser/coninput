@@ -6,8 +6,8 @@ import (
 	"golang.org/x/sys/windows"
 )
 
-// EnableInputModes returns the given mode with one or more additional modes enabled.
-func EnableInputModes(mode uint32, enableModes ...uint32) uint32 {
+// AddInputModes returns the given mode with one or more additional modes enabled.
+func AddInputModes(mode uint32, enableModes ...uint32) uint32 {
 	for _, enableMode := range enableModes {
 		mode |= enableMode
 	}
@@ -15,8 +15,8 @@ func EnableInputModes(mode uint32, enableModes ...uint32) uint32 {
 	return mode
 }
 
-// DisableInputModes returns the given mode with one or more additional modes disabled.
-func DisableInputModes(mode uint32, disableModes ...uint32) uint32 {
+// RemoveInputModes returns the given mode with one or more additional modes disabled.
+func RemoveInputModes(mode uint32, disableModes ...uint32) uint32 {
 	for _, disableMode := range disableModes {
 		mode &^= disableMode
 	}
