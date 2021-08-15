@@ -24,11 +24,16 @@ func run() (err error) {
 		return fmt.Errorf("get console mode: %w", err)
 	}
 
-	newConsoleMode := uint32(0)
-	newConsoleMode |= windows.ENABLE_MOUSE_INPUT
-	newConsoleMode |= windows.ENABLE_WINDOW_INPUT
-	newConsoleMode |= windows.ENABLE_PROCESSED_INPUT
-	newConsoleMode |= windows.ENABLE_EXTENDED_FLAGS
+	fmt.Println("Input mode:", coninput.DescribeInputMode(originalConsoleMode))
+
+	newConsoleMode := coninput.EnableInputModes(
+		windows.ENABLE_MOUSE_INPUT,
+		windows.ENABLE_WINDOW_INPUT,
+		windows.ENABLE_PROCESSED_INPUT,
+		windows.ENABLE_EXTENDED_FLAGS,
+	)
+
+	fmt.Println("Setting mode to:", coninput.DescribeInputMode(newConsoleMode))
 
 	err = windows.SetConsoleMode(con, newConsoleMode)
 	if err != nil {
@@ -36,6 +41,8 @@ func run() (err error) {
 	}
 
 	defer func() {
+		fmt.Println("Resetting input mode to:", coninput.DescribeInputMode(originalConsoleMode))
+
 		resetErr := windows.SetConsoleMode(con, originalConsoleMode)
 		if err == nil && resetErr != nil {
 			err = fmt.Errorf("reset console mode: %w", resetErr)
