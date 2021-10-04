@@ -16,6 +16,7 @@ var (
 	procReadConsoleInputW             = modkernel32.NewProc("ReadConsoleInputW")
 	procPeekConsoleInputW             = modkernel32.NewProc("PeekConsoleInputW")
 	procGetNumberOfConsoleInputEvents = modkernel32.NewProc("GetNumberOfConsoleInputEvents")
+	procFlushConsoleInputBuffer       = modkernel32.NewProc("FlushConsoleInputBuffer")
 )
 
 // NewStdinHandle is a shortcut for windows.GetStdHandle(windows.STD_INPUT_HANDLE).
@@ -141,4 +142,13 @@ func GetNumberOfConsoleInputEvents(console windows.Handle) (uint32, error) {
 	err := WinGetNumberOfConsoleInputEvents(console, &nEvents)
 
 	return nEvents, err
+}
+
+func FlushConsoleInputBuffer(consoleInput windows.Handle) error {
+	r, _, e := syscall.Syscall(procFlushConsoleInputBuffer.Addr(), 1, uintptr(consoleInput), 0, 0)
+	if r == 0 {
+		return error(e)
+	}
+
+	return nil
 }
