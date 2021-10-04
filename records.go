@@ -38,7 +38,9 @@ func (ir InputRecord) String() string {
 	return ir.Unwrap().String()
 }
 
-// Unwrap parses the event data into an EventRecord of the respective event type.
+// Unwrap parses the event data into an EventRecord of the respective event
+// type. The data in the returned EventRecord does not contain any references to
+// the passed InputRecord.
 func (ir InputRecord) Unwrap() EventRecord {
 	switch ir.EventType {
 	case FocusEventType:
@@ -335,7 +337,7 @@ func (e UnknownEvent) String() string {
 	return fmt.Sprintf("%s[Type: %d, Data: %v]", e.Type(), e.InputRecord.EventType, e.InputRecord.Event[:])
 }
 
-// WindowBufferSizeEventRecord represent the COORD structure from the Windows
+// Coord represent the COORD structure from the Windows
 // console API (see https://docs.microsoft.com/en-us/windows/console/coord-str).
 type Coord struct {
 	// X is the horizontal coordinate or column value. The units depend on the function call.
@@ -352,6 +354,10 @@ func (c Coord) String() string {
 // ButtonState holds the state of the mouse buttons (see
 // https://docs.microsoft.com/en-us/windows/console/mouse-event-record-str).
 type ButtonState uint32
+
+func (bs ButtonState) Contains(state ButtonState) bool {
+	return bs&state > 0
+}
 
 // String ensures that ButtonState satisfies the fmt.Stringer interface.
 func (bs ButtonState) String() string {
@@ -373,19 +379,27 @@ func (bs ButtonState) String() string {
 	}
 }
 
+func (bs ButtonState) IsReleased() bool {
+	return bs&0xff > 0
+}
+
 // Valid values for ButtonState.
 const (
 	FROM_LEFT_1ST_BUTTON_PRESSED ButtonState = 0x0001
+	RIGHTMOST_BUTTON_PRESSED     ButtonState = 0x0002
 	FROM_LEFT_2ND_BUTTON_PRESSED ButtonState = 0x0004
 	FROM_LEFT_3RD_BUTTON_PRESSED ButtonState = 0x0008
 	FROM_LEFT_4TH_BUTTON_PRESSED ButtonState = 0x0010
-	RIGHTMOST_BUTTON_PRESSED     ButtonState = 0x0002
 )
 
-// ButtonState holds the state of the control keys for key and mouse events (see
-// https://docs.microsoft.com/en-us/windows/console/key-event-record-str and
-// https://docs.microsoft.com/en-us/windows/console/mouse-event-record-str).
+// ControlKeyState holds the state of the control keys for key and mouse events
+// (see https://docs.microsoft.com/en-us/windows/console/key-event-record-str
+// and https://docs.microsoft.com/en-us/windows/console/mouse-event-record-str).
 type ControlKeyState uint32
+
+func (cks ControlKeyState) Contains(state ControlKeyState) bool {
+	return cks&state > 0
+}
 
 // Valid values for ControlKeyState.
 const (
@@ -454,13 +468,17 @@ func (ef EventFlags) String() string {
 	}
 }
 
+func (ef EventFlags) Contains(flag EventFlags) bool {
+	return ef&flag > 0
+}
+
 // Valid values for EventFlags.
 const (
 	CLICK          EventFlags = 0x0000
-	DOUBLE_CLICK   EventFlags = 0x0002
-	MOUSE_HWHEELED EventFlags = 0x0008
 	MOUSE_MOVED    EventFlags = 0x0001
+	DOUBLE_CLICK   EventFlags = 0x0002
 	MOUSE_WHEELED  EventFlags = 0x0004
+	MOUSE_HWHEELED EventFlags = 0x0008
 )
 
 func highWord(data uint32) uint16 {
